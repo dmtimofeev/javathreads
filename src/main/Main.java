@@ -4,7 +4,6 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
-    private static final Object MONITOR = new Object();
 
     private static Runnable task = () -> {
         int i = 0;
@@ -27,14 +26,12 @@ public class Main {
         }
     }
 
-    private static void print(String message, String who){
-        synchronized (MONITOR){
-            System.err.println(who + " thread print start...");
-            sleep(3);
-            System.out.println(who + ": " + message);
-            sleep(3);
-            System.err.println(who + " thread print end.");
-        }
+    private static synchronized void print(String message, String who){
+        System.err.println(who + " thread print start...");
+        sleep(3);
+        System.out.println(who + ": " + message);
+        sleep(3);
+        System.err.println(who + " thread print end.");
     }
 
     private static void sleep(int sleepSeconds) {
