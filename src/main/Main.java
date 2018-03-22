@@ -1,59 +1,39 @@
 package main;
 
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Main {
-    private static final String TOUCH_COMMAND = "тык";
-    private static final String AWAY_COMMAND = "уходи";
-    private static final Object MONITOR = new Object();
-
-    private static Runnable task = () -> {
-        int i = 0;
-        System.out.println("И кому я тут понадобился? Начнём с " + i++);
-        while (true){
-            System.out.println("Z-z-z...");
-            synchronized (MONITOR){
-                try {
-                    MONITOR.wait();
-                } catch (InterruptedException e) {
-                    System.out.println("Злые вы, уйду я от вас.");
-                    return;
-                }
-            }
-            System.out.println("Да не сплю я! Вот, посчитал даже: " + i++);
-        }
-    };
+    private static final int THREAD_POOL_SIZE = 3;
+    private static final Random rnd = new Random(System.currentTimeMillis());
 
     public static void main(String[] args) {
-        System.out.println("Начепятайте \"" + TOUCH_COMMAND +"\" чтобы разбудить фоновый поток.");
-        System.out.println("Напепятайте \"" + AWAY_COMMAND +"\" дабы прервать фоновый поток.");
-        Scanner scanner = new Scanner(System.in);
+        ExecutorService service = new ScheduledThreadPoolExecutor(THREAD_POOL_SIZE);
 
-        Thread thread = null;
-
-        while (true){
-            String message = scanner.nextLine();
-            if(thread == null || thread.getState() == Thread.State.TERMINATED) {
-                thread = new Thread(task);
-                thread.start();
-            }
-            if(message.equalsIgnoreCase(TOUCH_COMMAND)){
-                synchronized (MONITOR){
-                    MONITOR.notify();
-                }
-            }
-            if(message.equalsIgnoreCase(AWAY_COMMAND)){
-                thread.interrupt();
-            }
+        for (int i = 0; i < 10; i++){
+            service.submit(new Task(i));
         }
     }
 
-    private static void sleep(int sleepSeconds) {
-        try {
-            TimeUnit.SECONDS.sleep(sleepSeconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private static class Task implements Runnable {
+        private final int id;
+
+        private Task(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+            for(int count = 0; count < 10; count++){
+                try {
+                    Thread.sleep(Math.abs(rnd.nextLong() % 3000));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(Thread.currentThread().getName() + ": " +
+                        "I'm a task № " + id + " and my internal count=" + count);
+            }
         }
     }
 }
