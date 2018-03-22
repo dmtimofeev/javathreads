@@ -7,14 +7,13 @@ public class Main {
     private static final String EXIT_COMMAND = "exit";
     private static final String STOP_COMMAND = "stop";
 
-    private static boolean stopFlag = false;
+    private static volatile boolean stopFlag = false;
 
     private static Runnable task = () -> {
         //Выполняеется в отдельном потоке
         Thread.currentThread().setName("Фоновый поток");
         while (!stopFlag){
             //якобы усиленно делаем что-то, пока не будет установлен флаг остановки... и никогда не видим его!
-            sleep(1);
         }
         System.err.print(getCurrentThreadName());
         System.err.println("Фоновый поток обнаружил флаг остановки и завершился");
