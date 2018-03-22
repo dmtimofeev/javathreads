@@ -14,6 +14,7 @@ public class Main {
         Thread.currentThread().setName("Фоновый поток");
         while (!stopFlag){
             //якобы усиленно делаем что-то, пока не будет установлен флаг остановки... и никогда не видим его!
+            sleep(1);
         }
         System.err.print(getCurrentThreadName());
         System.err.println("Фоновый поток обнаружил флаг остановки и завершился");
